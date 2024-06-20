@@ -69,7 +69,28 @@ class Apple(GameObject):
         
 
 class Snake(GameObject):
-    pass
+    
+    def __init__(self):
+        super().__init__() 
+        self.length = 1
+        self.positions = [(self.position[0], self.position[0])]
+        self.direction = RIGHT
+        self.next_direction = None
+        self.body_color = SNAKE_COLOR
+
+    def update_direction(self):
+        if self.next_direction:
+            self.direction = self.next_direction
+            self.next_direction = None
+
+    def get_head_position(self):
+        return self.position[0]
+    
+    def draw(self):
+        for position in self.positions[:-1]:
+            rect = (pygame.Rect(position, (GRID_SIZE, GRID_SIZE)))
+            pygame.draw.rect(screen, self.body_color, rect)
+            pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
 
 def main():
