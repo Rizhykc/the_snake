@@ -38,6 +38,7 @@ pygame.display.set_caption('Змейка')
 # Настройка времени:
 clock = pygame.time.Clock()
 
+
 # Тут опишите все классы игры.
 class GameObject:
     # Инициализация позиции и цвета.
@@ -51,7 +52,21 @@ class GameObject:
 
 
 class Apple(GameObject):
-    pass
+
+    def __init__(self):
+        super().__init__() 
+        self.body_color = APPLE_COLOR
+        self.randomize_position()
+
+    def draw(self):
+        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, self.body_color, rect)
+        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
+    
+    def randomize_position(self):
+        self.position = (randint(0, GRID_WIDTH) * GRID_SIZE,
+                         randint(0, GRID_HEIGHT) * GRID_SIZE)
+        
 
 class Snake(GameObject):
     pass
