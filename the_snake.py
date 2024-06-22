@@ -129,6 +129,7 @@ class Snake(GameObject):
     def reset(self):
         self.length = 1
         self.positions = [(self.position[0], self.position[0])]
+        screen.fill(BOARD_BACKGROUND_COLOR)  # Очищаем экран   
         
 
 def handle_keys(game_object):
@@ -153,6 +154,9 @@ def main():
     # Инициализация PyGame:
     pygame.init()
     apple = Apple()
+    apple2 = Apple()
+    apple3 = Apple()
+    apple4 = Apple()
     snake = Snake()
     # Тут нужно создать экземпляры классов.
     while True:
@@ -161,9 +165,21 @@ def main():
         snake.move()
         snake.draw()  # Рисуем змейку
         apple.draw()  # Рисуем яблоко
+        apple2.draw()
+        apple3.draw()
+        apple4.draw()
         if snake.get_head_position() == apple.position:
             snake.length += 1
             apple.randomize_position()
+        elif snake.get_head_position() == apple2.position:
+            snake.length += 1
+            apple2.randomize_position()
+        elif snake.get_head_position() == apple3.position:
+            snake.length += 1
+            apple3.randomize_position()        
+        elif snake.get_head_position() == apple4.position: 
+            snake.length += 1
+            apple4.randomize_position()            
         pygame.display.update()
 
     pygame.quit()
