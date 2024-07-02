@@ -61,21 +61,15 @@ class GameObject:
 class Apple(GameObject):
     """Дочерний класс отвечающий за создание и прорисовки яблока."""
 
-    def __init__(self, occupated_positions=None) -> None:
+    def __init__(self) -> None:
         super().__init__(body_color=APPLE_COLOR)
-        self.occupated_positions = occupated_positions
-        if occupated_positions is None:
-            occupated_positions = []
-        self.randomize_position(occupated_positions)
+        self.randomize_position()
 
-    def randomize_position(self, occupated_positions):
+    def randomize_position(self):
         """Рандомноые позиции яблочка"""
-        while True:
-            position = (randint(0, GRID_WIDTH) * GRID_SIZE,
-                        randint(0, GRID_HEIGHT) * GRID_SIZE)
-            if position not in occupated_positions:
-                self.position = position
-                return
+        position = (randint(1, GRID_WIDTH) * GRID_SIZE,
+                    randint(1, GRID_HEIGHT) * GRID_SIZE)
+        self.position = position
 
     def draw(self):
         """Отрисовка яблочка."""
@@ -96,11 +90,11 @@ class Snake(GameObject):
         """Возвращает позицию головы змейки"""
         return self.positions[0]
 
-    def update_direction(self):
+    def update_direction(self, next_direction=None):
         """Метод обновляет направление движения змейки."""
-        if self.next_direction:
-            self.direction = self.next_direction
-            self.next_direction = None
+        if next_direction:
+            self.direction = next_direction
+            next_direction = None
 
     def move(self):
         """
@@ -123,7 +117,7 @@ class Snake(GameObject):
     def draw(self):
         """Отрисовка змейки."""
         # Отрисовка головы змейки
-        self.position = self.positions[0]
+        self.position = self.get_head_position()
         self._draw_rect()
 
         # Затирание последнего сегмента
@@ -143,39 +137,46 @@ def handle_keys(game_object):
     Обрабатывает нажатия клавиш,
     чтобы изменить направление движения змейки.
     """
-    direction_list = {
-        (pygame.K_UP, DOWN): UP,
-        (pygame.K_DOWN, UP): DOWN,
-        (pygame.K_LEFT, RIGHT): LEFT,
-        (pygame.K_RIGHT, LEFT): RIGHT,
-    }
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             raise SystemExit
-        elif event.type == pygame.KEYDOWN:
-            for keys, value in direction_list.items():
-                if event.key == keys[0] and game_object.direction != keys[1]:
-                    game_object.next_direction = value
+        if event.type == pygame.KEYDOWN:
+            dir_list = {
+                (pygame.K_UP, LEFT): UP,
+                (pygame.K_UP, RIGHT): UP,
+                (pygame.K_DOWN, LEFT): DOWN,
+                (pygame.K_DOWN, RIGHT): DOWN,
+                (pygame.K_LEFT, UP): LEFT,
+                (pygame.K_LEFT, DOWN): LEFT,
+                (pygame.K_RIGHT, UP): RIGHT,
+                (pygame.K_RIGHT, DOWN): RIGHT,
+            }
+            key = (event.key, game_object.direction)
+            if new_direction := dir_list.get(key):
+                game_object.update_direction(new_direction)
 
 
 def main():
-    """Главнаый цикл игры 'Змейка'."""
+    """Главный цикл игры 'Змейка'."""
     # Инициализация PyGame:
     pygame.init()
     snake = Snake()
-    apple = Apple(snake.position)
+    apple = Apple()
     while True:
         clock.tick(SPEED)
         handle_keys(snake)
         snake.move()
         if snake.get_head_position() == apple.position:
             snake.length += 1
-            apple = Apple(snake.positions)
+            while True:
+                new_apple_posit = apple.randomize_position()
+                if new_apple_posit not in snake.positions:
+                    break
         if len(snake.positions) > 2:
             if snake.get_head_position() in snake.positions[2:]:
                 snake.reset()
-                apple = Apple(snake.positions)
+                apple.randomize_position()
 
         snake.draw()
         apple.draw()
